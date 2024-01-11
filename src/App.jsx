@@ -17,7 +17,7 @@ function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60, // this forces the data to be refetched every 5 minutes
+        staleTime: 0, // 0 = always refetch
       },
     },
   });

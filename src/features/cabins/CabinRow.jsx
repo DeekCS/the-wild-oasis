@@ -5,6 +5,8 @@ import CreateCabinForm from "./CreateCabinForm";
 // import { useDeleteCabin } from "./useDeleteCabin";
 import { formatCurrency } from "../../utils/helpers";
 import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
 // import { useCreateCabin } from "./useCreateCabin";
 
 const TableRow = styled.div`
@@ -50,6 +52,7 @@ function CabinRow({ cabin }) {
   const [showForm, setShowForm] = useState(false);
   // const { isDeleting, deleteCabin } = useDeleteCabin();
   // const { isCreating, createCabin } = useCreateCabin();
+  const queryClient = useQueryClient();
 
   const {
     id: cabinId,
@@ -60,6 +63,13 @@ function CabinRow({ cabin }) {
     description,
   } = cabin;
 
+  const { isLoading, mutate } = useMutation({
+    mutationFn: (id) => deleteCabin(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries("cabins");
+    },
+  });
+
   return (
     <>
       <TableRow role="row">
@@ -68,6 +78,16 @@ function CabinRow({ cabin }) {
         <div>Fits up to {maxCapacity} guests</div>
         <Price>{formatCurrency(1000)}</Price>
         <Discount>{discount}%</Discount>
+        {/* Delete Button */}
+        <div>
+          <button
+            type="button"
+            onClick={() => mutate(cabinId)}
+            disabled={isLoading}
+          >
+            <HiTrash />
+          </button>
+        </div>
       </TableRow>
       {showForm && <CreateCabinForm cabinToEdit={cabin} />}
     </>
